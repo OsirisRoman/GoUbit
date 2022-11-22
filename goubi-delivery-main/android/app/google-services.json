@@ -1,0 +1,83 @@
+{
+  "project_info": {
+    "project_number": "196742219163",
+    "firebase_url": "https://goubi-360003-default-rtdb.firebaseio.com",
+    "project_id": "goubi-360003",
+    "storage_bucket": "goubi-360003.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:196742219163:android:7486de6a33a92861c00d3e",
+        "android_client_info": {
+          "package_name": "com.example.aplios"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "196742219163-1dv9eamvo26r339elakgckdtjk9kvu3q.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC2KcESfKBlGdl60vPRy0HvtWmtRYInXb8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "196742219163-1dv9eamvo26r339elakgckdtjk9kvu3q.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "196742219163-66fgqihdgglith3b1aaejibactdc5glf.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.aplios"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:196742219163:android:d963acfeeb5597cac00d3e",
+        "android_client_info": {
+          "package_name": "com.example.goubi_delivery"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "196742219163-1dv9eamvo26r339elakgckdtjk9kvu3q.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC2KcESfKBlGdl60vPRy0HvtWmtRYInXb8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "196742219163-1dv9eamvo26r339elakgckdtjk9kvu3q.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "196742219163-66fgqihdgglith3b1aaejibactdc5glf.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.aplios"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
