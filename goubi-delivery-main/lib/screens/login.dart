@@ -174,13 +174,23 @@ class _LoginScreenState extends State<LoginScreen> {
               email: emailController.text.trim(),
               password: passwordController.text.trim())
           .then((uid) => {
-                Navigator.pop(dialogContext),
-                Navigator.pushAndRemoveUntil(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) =>
-                            const HomeScreen(number: 0)), // Hom
-                    (route) => false)
+                if (uid.user!.emailVerified)
+                  {
+                    Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const HomeScreen(
+                                  number: 0,
+                                )),
+                        (route) => false)
+                  }
+                else
+                  {
+                    Navigator.pop(context),
+                    FirebaseAuth.instance.signOut(),
+                    showOkDialog(context, "Error",
+                        "El usuario no ha verificado su email"),
+                  }
               });
     } on FirebaseAuthException catch (e) {
       // ignore: avoid_print

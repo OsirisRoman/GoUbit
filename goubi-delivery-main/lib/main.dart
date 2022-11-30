@@ -94,7 +94,10 @@ class _MyAppState extends State<MyApp> {
           primarySwatch: Colors.grey,
         ),
         initialRoute: '/',
-        routes: {'/chat': (context) => const HomeScreen(number: 2)},
+        routes: {
+          '/chat': (context) => const HomeScreen(number: 2),
+          '/login': (context) => const LoginScreen()
+        },
         home: StreamBuilder<User?>(
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {

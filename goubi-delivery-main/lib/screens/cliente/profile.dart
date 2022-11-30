@@ -184,10 +184,20 @@ class _LoginScreenState extends State<ProfileScreen> {
   }
 
   Future<void> signOut() async {
-    await FirebaseAuth.instance.signOut();
-    await Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (context) => const LoginScreen()),
-        (route) => false);
+    FirebaseFirestore.instance
+        .collection('users')
+        .doc(FirebaseAuth.instance.currentUser?.uid)
+        .update({'tokens': []}).then((value) async => {
+              await FirebaseAuth.instance.signOut(),
+              Navigator.popAndPushNamed(context, '/login')
+              // Navigator.push(
+              //   context,
+              //   MaterialPageRoute(builder: (context) => const LoginScreen()),
+              // )
+              // await Navigator.pushAndRemoveUntil(
+              //     context,
+              //     MaterialPageRoute(builder: (context) => const LoginScreen()),
+              //     (route) => false)
+            });
   }
 }

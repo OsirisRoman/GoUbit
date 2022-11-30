@@ -108,10 +108,10 @@ class _LoginScreenState extends State<HomeScreen> {
           } else if (snapshot.hasError) {
             return const Center(child: Text("Problemas al iniciar sesion"));
           } else if (snapshot.hasData) {
-            if (snapshot.data!.get("blocked") == true) {
-              return const DisableScreen();
-            } else {
+            if (snapshot.data!.get("blocked") == false) {
               return mainContainer;
+            } else {
+              return const DisableScreen();
             }
           } else {
             return const LoginScreen();

@@ -164,55 +164,57 @@ class _HomeWidgetState extends State<WaterClientScreen> {
       );
     }
 
-    final card1 = Card(
-      color: const Color(0XF0F0F0F0),
-      child: Container(
-          padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              ListTile(
-                leading: ClipRRect(
-                  borderRadius: const BorderRadius.all(Radius.circular(4.0)),
-                  child: Image.asset("assets/icon1.png"),
+    Card _titleCard(bool flag) {
+      return Card(
+        color: const Color(0XF0F0F0F0),
+        child: Container(
+            padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                ListTile(
+                  leading: ClipRRect(
+                    borderRadius: const BorderRadius.all(Radius.circular(4.0)),
+                    child: Image.asset("assets/icon1.png"),
+                  ),
+                  title: const Text(
+                    'Bienvenido',
+                    style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
+                  ),
+                  subtitle: const Text('Aqui puedes ver tus solicitudes'),
+                  trailing: Switch(
+                    value: isSwitched,
+                    onChanged: (value) {
+                      setState(() {
+                        users_ref.update({"status": value});
+                        isSwitched = value;
+                      });
+                    },
+                    activeTrackColor: Colors.yellow,
+                    activeColor: Colors.black,
+                  ),
                 ),
-                title: const Text(
-                  'Bienvenido',
-                  style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
-                ),
-                subtitle: const Text('Aqui puedes ver tus solicitudes'),
-                trailing: Switch(
-                  value: isSwitched,
-                  onChanged: (value) {
-                    setState(() {
-                      users_ref.update({"status": value});
-                      isSwitched = value;
-                    });
-                  },
-                  activeTrackColor: Colors.yellow,
-                  activeColor: Colors.black,
-                ),
-              ),
-            ],
-          )),
-    );
+              ],
+            )),
+      );
+    }
 
-    return Scaffold(
-        backgroundColor: Colors.white,
-        body: Column(children: [
-          card1,
-          Expanded(
-              child: Container(
-                  padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
-                  child: FutureBuilder<DocumentSnapshot>(
-                      future: users_ref.get(),
-                      builder: (BuildContext context,
-                          AsyncSnapshot<DocumentSnapshot> snapshot) {
-                        if (snapshot.connectionState == ConnectionState.done) {
-                          Map<String, dynamic> data =
-                              snapshot.data!.data() as Map<String, dynamic>;
-                          if (data["status"] == true) {
-                            return FirebaseAnimatedList(
+    return FutureBuilder<DocumentSnapshot>(
+        future: users_ref.get(),
+        builder:
+            (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+          if (snapshot.connectionState == ConnectionState.done) {
+            Map<String, dynamic> data =
+                snapshot.data!.data() as Map<String, dynamic>;
+            if (data["status"] == true) {
+              return Scaffold(
+                  backgroundColor: Colors.white,
+                  body: Column(children: [
+                    _titleCard(isSwitched),
+                    Expanded(
+                        child: Container(
+                            padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
+                            child: FirebaseAnimatedList(
                                 query: ref
                                     .orderByChild('type') // line changed
                                     .equalTo("water"),
@@ -231,15 +233,21 @@ class _HomeWidgetState extends State<WaterClientScreen> {
                                   return (tmpdistance < distance)
                                       ? _waterCard(waterRequest, snapshot.key)
                                       : const SizedBox(height: 0);
-                                });
-                          } else {
-                            return const Text("Usuario desactivado");
-                          }
-                        }
-                        return const Center(
-                          child: CircularProgressIndicator(),
-                        );
-                      })))
-        ]));
+                                })))
+                  ]));
+            } else {
+              isSwitched = false;
+              return Scaffold(
+                  backgroundColor: Colors.white,
+                  body: Column(children: [
+                    _titleCard(isSwitched),
+                    const Text("usuario desactivado")
+                  ]));
+            }
+          }
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
+        });
   }
 }

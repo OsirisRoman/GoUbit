@@ -115,7 +115,7 @@ class _LoginScreenState extends State<RegisterScreen> {
     final cedulaField = TextFormField(
       autofocus: false,
       controller: cedulaController,
-      keyboardType: TextInputType.name,
+      keyboardType: TextInputType.phone,
       onSaved: (value) {
         cedulaController.text = value!;
       },
@@ -150,11 +150,13 @@ class _LoginScreenState extends State<RegisterScreen> {
           hintText: "Ingrese Placa",
           border: OutlineInputBorder(borderRadius: BorderRadius.circular(5))),
       validator: (value) {
+        print(value);
         if (value == null || value.isEmpty) {
           return 'Placa incompleta ';
-        } else if (value.length != 6 || value.length != 7) {
-          return 'Ingrese un telefono de 10 digitos ';
+        } else if (value.length == 6 || value.length == 7) {
+          return null;
         }
+        return 'Ingrese una placa de 6 o 7 digitos ';
       },
     );
     final nameField = TextFormField(
@@ -320,7 +322,6 @@ class _LoginScreenState extends State<RegisterScreen> {
   showAlertDialog(BuildContext context, String body) {
     var json = convert.jsonDecode(body) as Map<dynamic, dynamic>;
     var showtext = 'Some Error';
-    print(json);
     if (json['sucess']) {
       showtext = 'usuario creado con exito';
     } else {
