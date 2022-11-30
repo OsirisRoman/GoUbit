@@ -1,20 +1,7 @@
-import React from 'react'
-import { useState, useEffect } from "react";
-import {db} from "./firebase"
+import React , {useEffect,useState}from 'react'
 
 import {
-  collection,
-  getDocs,
-  addDoc,
-  updateDoc,
-  deleteDoc,
-  doc,
-} from "firebase/firestore";
-
-import {
-  CAvatar,
   CButton,
-  CButtonGroup,
   CCard,
   CCardBody,
   CCardFooter,
@@ -28,101 +15,114 @@ import {
   CTableRow,
   CTableHeaderCell,
   CTableDataCell,
-  CCardText
-
-
+  CFormSwitch
 } from '@coreui/react'
+import { useNavigate } from "react-router-dom";
 
+import UserDataService from "../../services/users.service";
+import HttpService from "../../services/http.service";
+import Swal from 'sweetalert2'
+import Cookies from 'js-cookie'
 
 const Dashboard = () => {
+  
+  const [users, setUsers] = useState([]);
+  const [rusers, setRusers] = useState([]);
+  const navigate = useNavigate();
+  useEffect(() => {
+
+    let cookie = Cookies.get('access-token')
+    if(!cookie){
+      navigate("/login")
+    }else{
+      getUsers();
+    }
+    
+  }, []);
+
+  const getUsers = async () => {
+    Swal.showLoading();
+    const data = await UserDataService.getAllUser();
+    const lista = data.docs.map((doc) => ({...doc.data(),id:doc.id}));
+    setUsers(lista);
+    setRusers(lista)
+    if(users){
+      Swal.close()
+    }
+  };
+
+
+  const setSwitch = (flag,id) =>{
+    let message = !flag ? "desactivar" : "activar" 
+    Swal.fire({
+      title: 'Alerta!',
+      text: `Seguro Desea ${message} el Usuario`,
+      icon: 'warning',
+      showCancelButton:true,
+      cancelButtonText: 'Cancelar',
+      confirmButtonText: 'Ok',
+      confirmButtonColor: "#181818", 
+    }).then(async (value)=>{
+      if(value.isConfirmed){
+        Swal.showLoading();
+        HttpService.disableUserAxis(id,!flag).then((val)=>{
+          if(val.data.sucess){
+            getUsers();
+          }
+        })
+        
+      }
+    })
+  }
+
+  const updateList = (info) =>{
+    if(info === 'client'){
+      let tmp_list = rusers.filter(x=> x.type === 'client')
+      setUsers(tmp_list)
+    }
+    if(info === 'todo'){
+      setUsers(rusers)
+    }
+    if(info === 'delivery'){
+      let tmp_list = rusers.filter(x=> x.type !== 'client' && x.type !== 'admin')
+      setUsers(tmp_list)
+    }
+  }
+
+  const searchTextBar = (value) =>{
+    if(value.length){
+      let tmp_list = rusers.filter(x=>  x.name.toLowerCase().includes(value.toLowerCase()))
+      setUsers(tmp_list)
+    }else{
+      setUsers(rusers)
+    }
+  }
 
   const button_style = {
     width: "90px",
-    color: "primary",
-
+    color: "primary"
+  }
+  const button_style2 = {
+    width: "150px",
+    color: "primary"
   }
 
-
-  const [users, setUsers] = useState([]);
-
-
-  useEffect(() => {
-    const getUsers = async () => {
-
-      const userCollectionRef = collection(db, "users");
-
-      const data = await getDocs(userCollectionRef);
-      console.log("elemeto "+ data.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
-      setUsers(data.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
-
-};
-    getUsers();
-  }, []);
-
-  const handleSubmit = async () => {
-
-    const userCollectionRef = collection(db, "users");
-
-    const data = await getDocs(userCollectionRef);
-      console.log("elemeto "+ data.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
-      setUsers(data.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
-  };
-
-  const handleSubmitGas =  async () => {
-
-    const userCollectionRef = collection(db, "users");
-
-    const data = await getDocs(userCollectionRef);
-
-    for(let key in data.docs.map((doc) => ({ ...doc.data(), id: doc.id }))) {
-
-      if ((data.docs.map((doc) => ({ ...doc.data(), id: doc.id }))[key].name) === "gas") {
-        setUsers(data.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
-       } else {
-       setUsers(data.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
-       }
-    }
-  };
-
-  const handleSubmitRecicle =  async () => {
-
-    const userCollectionRef = collection(db, "users");
-
-    const data2 = await getDocs(userCollectionRef);
-
-    for(let key2 in data2.docs.map((doc) => ({ ...doc.data(), id: doc.id }))) {
-
-      if ((data2.docs.map((doc) => ({ ...doc.data(), id: doc.id }))[key2].name) === "recicle") {
-
-        setUsers(data2.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
-      }
-    }
-  };
-
-
-
   return (
-
-
-<>
+    <>
       <CCard className="mb-4">
-
         <CCardHeader>
           <CRow>
             <CCol xs={5}>
               <strong style={{ fontSize: "25px" }} >Usuarios</strong>
             </CCol>
             <CCol xs={1}>
-              <CButton onClick={handleSubmit} style={button_style} >Todos</CButton>
+              <CButton style={button_style} onClick={()=>{updateList('todo')}}>Todo</CButton>
             </CCol>
             <CCol xs={1}>
-              <CButton   onClick={handleSubmitGas} style={button_style} >Gas</CButton>
+              <CButton style={button_style} onClick={()=>{updateList('client')}} >Clientes</CButton>
             </CCol >
-            <CCol xs={1}>
-              <CButton   onClick={handleSubmitGas} style={button_style} >Agua</CButton>
-            </CCol>
-            <CCol xs={1}>
-              <CButton   onClick={handleSubmitRecicle}  style={button_style} >Chatarra</CButton>
+            <CCol xs={2}>
+              <CButton style={button_style2} onClick={()=>{updateList('delivery')}}  >Repartidores</CButton>
             </CCol>
             <CCol xs={3}>
               <CFormInput
@@ -130,6 +130,9 @@ const Dashboard = () => {
                 id="exampleFormControlInput1"
                 placeholder="Escribe un Nombre"
                 aria-describedby="exampleFormControlInputHelpInline"
+                onChange={(e) => {
+                  searchTextBar(e.target.value);
+                }}
               />
             </CCol>
           </CRow>
@@ -138,7 +141,7 @@ const Dashboard = () => {
         <CCardBody>
 
         <CRow>
-
+          
         </CRow>
         <CRow >
 
@@ -146,40 +149,46 @@ const Dashboard = () => {
             <CTableHead>
               <CTableRow>
                 <CTableHeaderCell scope="col">No</CTableHeaderCell>
-                <CTableHeaderCell scope="col">Conductor</CTableHeaderCell>
+                <CTableHeaderCell scope="col">Nombre</CTableHeaderCell>
                 <CTableHeaderCell scope="col">Email</CTableHeaderCell>
                 <CTableHeaderCell scope="col">Numero</CTableHeaderCell>
                 <CTableHeaderCell scope="col">Cedula</CTableHeaderCell>
                 <CTableHeaderCell scope="col">Placa</CTableHeaderCell>
+                <CTableHeaderCell scope="col">Estado</CTableHeaderCell>
               </CTableRow>
             </CTableHead>
             <CTableBody>
-              {users.map((user) => (
-                 <CTableRow key={user.name}>
-                 <CTableDataCell>NO EXITE EN BD</CTableDataCell>
-                 <CTableDataCell>{user.name}</CTableDataCell>
-                 <CTableDataCell>{user.email}</CTableDataCell>
-                 <CTableDataCell>NO EXITE EN BD</CTableDataCell>
-                 <CTableDataCell>NO EXITE EN BD</CTableDataCell>
-                 <CTableDataCell>NO EXITE EN BD</CTableDataCell>
-               </CTableRow>
-
-            ))}
+              
+              {users.map((doc, index) => { 
+                return(
+                <CTableRow key={index}>
+                <CTableHeaderCell scope="row">{index+1}</CTableHeaderCell>
+                <CTableDataCell>{doc.name} {doc.lastname}</CTableDataCell>
+                <CTableDataCell>{doc.email}</CTableDataCell>
+                <CTableDataCell>{doc.phone}</CTableDataCell>
+                <CTableDataCell>{doc.cedula}</CTableDataCell>
+                <CTableDataCell>{doc.placa}</CTableDataCell>
+                <CTableDataCell>
+            
+                  <CFormSwitch  id="formSwitchCheckChecked" checked={!doc.blocked} onChange={(e) => {
+                        setSwitch(e.target.checked,doc.id);
+                      }}   />
+                    
+                </CTableDataCell>
+              </CTableRow>)
+              } )}
             </CTableBody>
           </CTable>
           </CRow>
 
         </CCardBody>
         <CCardFooter>
-
+         
         </CCardFooter>
       </CCard>
 
     </>
-
   )
-  //{users.map((user) => { })};
-
 }
 
 export default Dashboard

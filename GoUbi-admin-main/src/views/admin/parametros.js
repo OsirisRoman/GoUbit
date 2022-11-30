@@ -1,34 +1,64 @@
-import React from 'react'
+import React , {useEffect,useState}from 'react'
 
 import {
-  CAvatar,
   CButton,
-  CButtonGroup,
   CCard,
   CCardBody,
-  CCardFooter,
+  CFormLabel,
   CCardHeader,
   CCol,
   CFormInput,
   CRow,
-  CTable,
-  CTableBody,
-  CTableHead,
-  CTableRow,
-  CTableHeaderCell,
-  CTableDataCell,
-  CCardText,
   CContainer
-  
-
 } from '@coreui/react'
+
+import Swal from 'sweetalert2'
+import { useNavigate } from "react-router-dom";
+
+import SettingsDataService from "../../services/settings.service";
+import Cookies from 'js-cookie'
 
 const Dashboard = () => {
 
-  const button_style = {
-    width: "90px",
-    color: "primary"
+  const navigate = useNavigate();
+  const [radio1,setRadio1]=useState(0)
+  const [radio2,setRadio2]=useState(0)
+  const [tiempo,setTiempo]=useState(0)
+  useEffect(() => {
+    let cookie = Cookies.get('access-token')
+    if(!cookie){
+      navigate("/login")
+    }else{
+      getSettings();
+    }
+  }, []);
+  
+  const getSettings = async () => {
+    Swal.showLoading();
+    const data = await SettingsDataService.getSettings()
+    if(data){
+      let tmpdata = data.data()
+      setRadio1(tmpdata.radio_1)
+      setRadio2(tmpdata.radio_2)
+      setTiempo(tmpdata.tiempo)
+      Swal.close()
+    }
+  };
+
+  const submitInfo = () =>{
+    Swal.showLoading();
+    SettingsDataService.updateSettings({
+      radio_1: parseInt(radio1),
+      radio_2: parseInt(radio2),
+      tiempo : parseInt(tiempo)
+    }).then((val)=>{
+      Swal.close()
+    }).catch((err)=>{
+      console.log(err)
+    })
   }
+
+
 
   return (
     <>
@@ -47,36 +77,42 @@ const Dashboard = () => {
        
         <CRow>
           <CCol xs={6}>
+          <CFormLabel >Radio de Solicitud Principal (Km)</CFormLabel>
             <CFormInput
                 type="text"
                 id="radioSolicitud"
-                placeholder="Radio de Solicitud principal"
+                value={radio1}
+                onChange={event => setRadio1(event.target.value)}
                 aria-describedby="exampleFormControlInputHelpInline"
               />
           </CCol>
           <CCol xs={6}>
+          <CFormLabel >Tiempo de espera (Minutos)</CFormLabel>
             <CFormInput
                 type="text"
                 id="tiempoespera"
-                placeholder="Tiempo de espera"
+                value={tiempo}
+                onChange={event => setTiempo(event.target.value)}
                 aria-describedby="exampleFormControlInputHelpInline"
+                
               />
           </CCol>
         </CRow>
-    
         <CRow >
           <CCol xs={6} style={{marginTop:"1em"}}>
+          <CFormLabel >Radio de Solicitud secundario (Km)</CFormLabel>
           <CFormInput
                   type="text"
                   id="radioSolicitud2"
-                  placeholder="Radio de Solicitud secundario"
+                  value={radio2}
+                  onChange={event => setRadio2(event.target.value)}
                   aria-describedby="exampleFormControlInputHelpInline"
                 />
           </CCol>
         </CRow>
         
         <CRow >
-          <CButton style={{ width: "100px",color: "primary",marginTop:"2em"}} >Actualizar</CButton>
+          <CButton style={{ width: "100px",color: "primary",marginTop:"2em"}} onClick={()=>{submitInfo()}} >Actualizar</CButton>
         </CRow>
         </CContainer>
         </CCardBody>
